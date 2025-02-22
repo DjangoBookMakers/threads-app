@@ -1,0 +1,23 @@
+<h2>{{ post.title }}</h2>
+<p>작성자:
+  {{ post.author.username }}</p>
+<p>작성일:
+  {{ post.created_at }}</p>
+<p>수정일:
+  {{ post.updated_at }}</p>
+
+<div>
+  {{ post.content }}
+</div>
+
+{% if user == post.author %}
+  <div>
+    <a href="{% url 'post_update' post.id %}">수정</a>
+    <form action="{% url 'post_delete' post.id %}" method="post" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
+    </form>
+  </div>
+{% endif %}
+
+<a href="{% url 'post_list' %}">목록으로</a>
