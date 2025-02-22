@@ -5,5 +5,5 @@ app_name = 'thread'
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('thread/', views.thread_list, name='thread_list'),
+    path('threads/', views.thread_list, name='thread_list'),
 ]
