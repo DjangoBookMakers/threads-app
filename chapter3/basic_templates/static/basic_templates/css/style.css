@@ -1,0 +1,30 @@
+.thread-card {                       /* 스레드 게시물 카드 디자인 */
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.thread-card:hover {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.thread-meta {                       /* 메타 정보(작성자, 시간) 스타일 */
+    color: #666;
+    font-size: 0.9em;
+}
+
+.trending-tags {                     /* 트렌딩 태그 섹션 스타일 */
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.tag-link {                          /* 태그 링크 스타일 */
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.tag-link:hover {
+    text-decoration: underline;
+}
