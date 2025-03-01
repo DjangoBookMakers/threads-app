@@ -20,4 +20,39 @@
   </div>
 {% endif %}
 
+<!-- 댓글 목록 -->
+<h3>댓글 ({{ comments.count }})</h3>
+<ul>
+  {% for comment in comments %}
+    <li>
+      <p>{{ comment.author.username }}
+        |
+        {{ comment.created_at }}</p>
+      <p>{{ comment.content }}</p>
+      {% if user == comment.author %}
+        <a href="{% url 'comment_update' post.id comment.id %}">수정</a>
+        <form action="{% url 'comment_delete' post.id comment.id %}" method="post" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" onclick="return confirm('댓글을 삭제하시겠습니까?');">삭제</button>
+        </form>
+      {% endif %}
+    </li>
+    {% empty %}
+    <li>댓글이 없습니다.</li>
+  {% endfor %}
+</ul>
+
+<!-- 댓글 작성 폼 -->
+{% if user.is_authenticated %}
+  <h3>댓글 작성</h3>
+  <form method="post">
+    {% csrf_token %}
+    {{ comment_form.as_p }}
+    <button type="submit">등록</button>
+  </form>
+{% else %}
+  <p>댓글을 작성하려면
+    <a href="{% url 'accounts_login' %}">로그인</a>하세요.</p>
+{% endif %}
+
 <a href="{% url 'post_list' %}">목록으로</a>
