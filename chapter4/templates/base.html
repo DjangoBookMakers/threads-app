@@ -43,20 +43,31 @@
           </ul>
           <ul class="navbar-nav">
             {% if user.is_authenticated %}
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:profile' user.username %}">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="fas fa-user"></i>
                   {{ user.username }}
                 </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                  <li>
+                    <a class="dropdown-item" href="#">프로필</a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#">설정</a>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'accounts:logout' %}">로그아웃</a>
+                  </li>
+                </ul>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'threads:create' %}">
+                <a class="nav-link" href="#">
                   <i class="fas fa-plus"></i>
                   새 스레드
                 </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'accounts:logout' %}">로그아웃</a>
               </li>
             {% else %}
               <li class="nav-item">
@@ -77,7 +88,16 @@
       <div id="messages-container">
         {% if messages %}
           {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+              {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle me-2"></i>
+              {% elif message.tags == 'error' or message.tags == 'danger' %}
+                <i class="fas fa-exclamation-circle me-2"></i>
+              {% elif message.tags == 'warning' %}
+                <i class="fas fa-exclamation-triangle me-2"></i>
+              {% elif message.tags == 'info' %}
+                <i class="fas fa-info-circle me-2"></i>
+              {% endif %}
               {{ message }}
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>

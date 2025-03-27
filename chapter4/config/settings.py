@@ -133,3 +133,12 @@ MEDIA_URL = "/media/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"
+
+# 로그인 성공 후 리다이렉트될 기본 URL
+LOGIN_REDIRECT_URL = "home"
+
+# 로그인 URL (login_required 데코레이터에서 사용)
+LOGIN_URL = "accounts:login"
+
+# 로그아웃 후 리다이렉트될 URL
+LOGOUT_REDIRECT_URL = "home"
