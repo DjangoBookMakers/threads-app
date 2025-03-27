@@ -42,15 +42,30 @@
             </li>
           </ul>
           <ul class="navbar-nav">
-            <!-- 로그인 상태에 따라 다른 메뉴 표시 (템플릿만 작성) -->
-            <li class="nav-item">
-              <a class="nav-link" href="#">로그인</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">회원가입</a>
-            </li>
-            <!-- 로그인 시 표시할 메뉴 -->
-            <!-- <li class="nav-item"> <a class="nav-link" href="#"> <i class="fas fa-user"></i> 사용자명 </a> </li> <li class="nav-item"> <a class="nav-link" href="#"> <i class="fas fa-plus"></i> 새 스레드 </a> </li> <li class="nav-item"> <a class="nav-link" href="#">로그아웃</a> </li> -->
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'accounts:profile' user.username %}">
+                  <i class="fas fa-user"></i>
+                  {{ user.username }}
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'threads:create' %}">
+                  <i class="fas fa-plus"></i>
+                  새 스레드
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'accounts:logout' %}">로그아웃</a>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'accounts:login' %}">로그인</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'accounts:signup' %}">회원가입</a>
+              </li>
+            {% endif %}
           </ul>
         </div>
       </div>
@@ -60,7 +75,14 @@
     <main class="container mt-4">
       <!-- 메시지 알림 표시 영역 -->
       <div id="messages-container">
-        <!-- 여기에 메시지가 동적으로 표시됨 -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
       </div>
 
       {% block content %}{% endblock %}
