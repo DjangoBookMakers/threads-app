@@ -23,3 +23,12 @@ class LoginForm(AuthenticationForm):
     class Meta:
         model = User
         fields = ("username", "password", "remember_me")
+
+
+class ProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("username", "email", "bio", "website", "profile_image")
+        widgets = {
+            "bio": forms.Textarea(attrs={"rows": 4}),
+        }

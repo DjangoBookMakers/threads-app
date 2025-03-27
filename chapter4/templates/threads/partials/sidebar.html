@@ -1,10 +1,9 @@
-<!-- templates/threads/partials/sidebar.html -->
 <div class="list-group mb-4">
-  <a href="#" class="list-group-item list-group-item-action">
+  <a href="{% url 'home' %}" class="list-group-item list-group-item-action">
     <i class="fas fa-home me-2"></i>
     홈
   </a>
-  <a href="#" class="list-group-item list-group-item-action">
+  <a href="{% url 'explore' %}" class="list-group-item list-group-item-action">
     <i class="fas fa-search me-2"></i>
     탐색
   </a>
@@ -20,18 +19,15 @@
     <i class="fas fa-bookmark me-2"></i>
     북마크
   </a>
-  <a href="#" class="list-group-item list-group-item-action">
-    <i class="fas fa-user me-2"></i>
-    프로필
-  </a>
-</div>
-
-<div class="card">
-  <div class="card-body">
-    <h5 class="card-title">다크 모드</h5>
-    <div class="form-check form-switch">
-      <input class="form-check-input" type="checkbox" id="dark-mode-toggle">
-      <label class="form-check-label" for="dark-mode-toggle">다크 모드 활성화</label>
-    </div>
-  </div>
+  {% if user.is_authenticated %}
+    <a href="{% url 'accounts:profile' username=user.username %}" class="list-group-item list-group-item-action">
+      <i class="fas fa-user me-2"></i>
+      프로필
+    </a>
+  {% else %}
+    <a href="{% url 'accounts:login' %}" class="list-group-item list-group-item-action">
+      <i class="fas fa-user me-2"></i>
+      프로필
+    </a>
+  {% endif %}
 </div>

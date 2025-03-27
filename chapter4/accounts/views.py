@@ -1,7 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import SignUpForm, LoginForm
+from .forms import SignUpForm, LoginForm, ProfileEditForm
+from .models import User
 
 
 def signup(request):
@@ -54,3 +56,46 @@ def logout_view(request):
     logout(request)
     messages.success(request, "로그아웃 되었습니다.")
     return redirect("home")
+
+
+def profile_view(request, username):
+    """
+    사용자 프로필 페이지를 표시합니다.
+    """
+    user = get_object_or_404(User, username=username)
+
+    # 사용자의 스레드 목록 가져오기(Thread 모델이 구현되었다고 가정)
+    # threads = Thread.objects.filter(author=user).order_by('-created_at')
+
+    context = {
+        "profile_user": user,  # 템플릿에서 현재 로그인한 user와 구분하기 위해 profile_user로 이름 지정
+        # 'threads': threads,
+        "is_owner": request.user == user,  # 프로필 소유자인지 확인
+    }
+
+    return render(request, "accounts/profile.html", context)
+
+
+@login_required
+def edit_profile(request):
+    """
+    사용자 프로필 편집 페이지입니다.
+    """
+    if request.method == "POST":
+        form = ProfileEditForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "프로필이 업데이트되었습니다.")
+            return redirect("accounts:profile", username=request.user.username)
+        else:
+            messages.error(
+                request, "프로필 업데이트에 실패했습니다. 입력 내용을 확인해주세요."
+            )
+    else:
+        form = ProfileEditForm(instance=request.user)
+
+    context = {
+        "form": form,
+    }
+
+    return render(request, "accounts/edit_profile.html", context)
