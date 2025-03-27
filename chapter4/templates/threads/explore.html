@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}탐색 - Threads{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <!-- 왼쪽 사이드바 -->
+    <div class="col-lg-3 d-none d-lg-block sidebar">
+      {% include 'threads/partials/sidebar.html' %}
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="col-lg-9 col-md-12">
+      <h3 class="mb-4">탐색</h3>
+
+      <!-- 검색 바 -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <form action="#" method="get">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="검색어를 입력하세요...">
+              <button class="btn btn-primary" type="submit">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 트렌드 섹션 -->
+      <h4 class="mb-3">인기 해시태그</h4>
+      <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">#Django</h5>
+              <p class="card-text">128개의 스레드</p>
+              <a href="#" class="btn btn-outline-primary">더 보기</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">#Python</h5>
+              <p class="card-text">86개의 스레드</p>
+              <a href="#" class="btn btn-outline-primary">더 보기</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">#웹개발</h5>
+              <p class="card-text">64개의 스레드</p>
+              <a href="#" class="btn btn-outline-primary">더 보기</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 인기 스레드 섹션 -->
+      <h4 class="mb-3">인기 스레드</h4>
+
+      <!-- 인기 스레드 목록 -->
+      <div class="popular-threads">
+        <!-- 샘플 인기 스레드 1 -->
+        <div class="card thread-card mb-3">
+          <div class="card-body">
+            <div class="d-flex mb-3">
+              <img src="{% static 'images/default-avatar.png' %}" alt="User Avatar" class="rounded-circle me-2" width="40" height="40">
+              <div>
+                <h5 class="card-title mb-0">인기사용자1</h5>
+                <small class="text-muted">1일 전</small>
+              </div>
+            </div>
+
+            <p class="card-text thread-content">Django와 Python을 활용한 웹 개발 팁 공유합니다! 특히 초보자분들에게 도움이 될 만한 내용입니다. #Django #Python #웹개발팁</p>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-secondary like-button" data-thread-id="5">
+                  <i class="far fa-heart"></i>
+                  <span class="like-count">235</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary comment-button" data-thread-id="5">
+                  <i class="far fa-comment"></i>
+                  <span>42</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary share-button" data-thread-id="5">
+                  <i class="far fa-share-square"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 샘플 인기 스레드 2 -->
+        <div class="card thread-card mb-3">
+          <div class="card-body">
+            <div class="d-flex mb-3">
+              <img src="{% static 'images/default-avatar.png' %}" alt="User Avatar" class="rounded-circle me-2" width="40" height="40">
+              <div>
+                <h5 class="card-title mb-0">인기사용자2</h5>
+                <small class="text-muted">2일 전</small>
+              </div>
+            </div>
+
+            <p class="card-text thread-content">Django로 SNS 플랫폼을 만드는 과정을 공유합니다. 오늘은 템플릿 시스템에 대해 알아보겠습니다. #Django #SNS #개발일지</p>
+            <img src="https://via.placeholder.com/500x300" alt="Thread Image" class="img-fluid rounded mb-3">
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-secondary like-button" data-thread-id="6">
+                  <i class="far fa-heart"></i>
+                  <span class="like-count">189</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary comment-button" data-thread-id="6">
+                  <i class="far fa-comment"></i>
+                  <span>36</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary share-button" data-thread-id="6">
+                  <i class="far fa-share-square"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 더 보기 버튼 -->
+        <div class="d-grid my-4">
+          <button id="load-more-popular-button" class="btn btn-outline-primary" onclick="loadMorePopularThreads()">
+            더 보기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

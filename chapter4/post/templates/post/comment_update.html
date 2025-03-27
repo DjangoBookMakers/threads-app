@@ -1,8 +1,0 @@
-<h2>{{ post.title }}</h2>
-<h3>댓글 수정</h3>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">저장</button>
-</form>
-<a href="{% url 'post_detail' post.id %}">취소</a>
