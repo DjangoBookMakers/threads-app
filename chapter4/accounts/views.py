@@ -2,6 +2,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 from .forms import SignUpForm, LoginForm, ProfileEditForm
 from .models import User
 
@@ -64,13 +66,22 @@ def profile_view(request, username):
     """
     user = get_object_or_404(User, username=username)
 
-    # 사용자의 스레드 목록 가져오기(Thread 모델이 구현되었다고 가정)
-    # threads = Thread.objects.filter(author=user).order_by('-created_at')
+    # 처음에는 10개만 로드
+    limit = 10
+    threads = (
+        user.threads.select_related("author").all().order_by("-created_at")[:limit]
+    )
+
+    # 더 많은 스레드가 있는지 확인
+    has_more = user.threads.count() > limit
 
     context = {
-        "profile_user": user,  # 템플릿에서 현재 로그인한 user와 구분하기 위해 profile_user로 이름 지정
-        # 'threads': threads,
-        "is_owner": request.user == user,  # 프로필 소유자인지 확인
+        "profile_user": user,
+        "threads": threads,
+        "is_owner": request.user == user,
+        "threads_count": user.threads.count(),
+        "comments_count": user.comments.count(),
+        "has_more": has_more,
     }
 
     return render(request, "accounts/profile.html", context)
@@ -99,3 +110,41 @@ def edit_profile(request):
     }
 
     return render(request, "accounts/edit_profile.html", context)
+
+
+def user_threads_api(request, username):
+    """
+    사용자 스레드를 JSON 형식으로 반환하는 API
+    """
+    user = get_object_or_404(User, username=username)
+    offset = int(request.GET.get("offset", 0))
+    limit = 10  # 한 번에 로드할 스레드 수
+
+    threads = (
+        user.threads.select_related("author")
+        .all()
+        .order_by("-created_at")[offset : offset + limit + 1]
+    )
+    has_more = len(threads) > limit
+
+    if has_more:
+        threads = threads[:limit]
+
+    # 스레드 HTML 렌더링
+    threads_html = ""
+    for thread in threads:
+        threads_html += render_to_string(
+            "threads/partials/thread_card.html",
+            {
+                "thread": thread,
+                "user": request.user,
+            },
+            request=request,
+        )
+
+    return JsonResponse(
+        {
+            "html": threads_html,
+            "has_more": has_more,
+        }
+    )

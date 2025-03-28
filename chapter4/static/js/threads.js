@@ -110,20 +110,41 @@ function confirmDeleteThread(threadId) {
   }
 }
 
-// 스레드 더 보기 로드 (무한 스크롤용)
-function loadMoreThreads() {
+// 사용자의 스레드 더 보기 로드
+function loadMoreThreads(username) {
   const loadMoreButton = document.querySelector("#load-more-button");
   if (loadMoreButton) {
+    const currentCount = document.querySelectorAll(".thread-card").length;
+
     loadMoreButton.innerHTML =
       '<span class="spinner-border spinner-border-sm"></span> 로딩 중...';
     loadMoreButton.disabled = true;
 
-    // 실제 구현에서는 AJAX 요청으로 추가 스레드 로딩
-    // 현재는 UI 데모만 구현
-    setTimeout(() => {
-      loadMoreButton.innerHTML = "더 보기";
-      loadMoreButton.disabled = false;
-    }, 1500);
+    // 백엔드 API에 추가 스레드 요청
+    fetch(`/accounts/profile/${username}/threads/?offset=${currentCount}`)
+      .then((response) => response.json())
+      .then((data) => {
+        // HTML 내용이 있는지 확인
+        if (data.html) {
+          const threadsContainer = document.querySelector(".user-threads");
+
+          // 새 스레드 HTML 삽입
+          threadsContainer.insertAdjacentHTML("beforeend", data.html);
+        }
+
+        // 더 로드할 스레드가 있는지 확인
+        if (!data.has_more) {
+          loadMoreButton.style.display = "none";
+        } else {
+          loadMoreButton.innerHTML = "더 보기";
+          loadMoreButton.disabled = false;
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading more threads:", error);
+        loadMoreButton.innerHTML = "더 보기";
+        loadMoreButton.disabled = false;
+      });
   }
 }
 

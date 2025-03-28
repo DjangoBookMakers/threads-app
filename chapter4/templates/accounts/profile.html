@@ -88,6 +88,15 @@
           {% for thread in threads %}
             {% include 'threads/partials/thread_card.html' with thread=thread %}
           {% endfor %}
+
+          <!-- 더 보기 버튼 (추가 스레드가 있을 경우) -->
+          {% if has_more %}
+            <div class="d-grid my-4">
+              <button id="load-more-button" class="btn btn-outline-primary" onclick="loadMoreThreads('{{ profile_user.username }}')">
+                더 보기
+              </button>
+            </div>
+          {% endif %}
         {% else %}
           <div class="alert alert-info">
             {% if is_owner %}
@@ -95,15 +104,6 @@
             {% else %}
               {{ profile_user.username }}님의 스레드가 없습니다.
             {% endif %}
-          </div>
-        {% endif %}
-
-        <!-- 더 보기 버튼 (스레드가 있을 경우) -->
-        {% if threads %}
-          <div class="d-grid my-4">
-            <button id="load-more-button" class="btn btn-outline-primary" onclick="loadMoreThreads()">
-              더 보기
-            </button>
           </div>
         {% endif %}
       </div>
