@@ -32,3 +32,20 @@ class ProfileEditForm(forms.ModelForm):
         widgets = {
             "bio": forms.Textarea(attrs={"rows": 4}),
         }
+
+    def clean_profile_image(self):
+        profile_image = self.cleaned_data.get("profile_image")
+        if profile_image:
+            # 파일 크기 제한 (5MB)
+            if profile_image.size > 5 * 1024 * 1024:
+                raise forms.ValidationError("이미지 크기는 5MB 이하여야 합니다.")
+
+            # 파일 형식 제한
+            valid_extensions = ["jpg", "jpeg", "png", "gif"]
+            ext = profile_image.name.split(".")[-1].lower()
+            if ext not in valid_extensions:
+                raise forms.ValidationError(
+                    "지원되는 이미지 형식은 JPG, JPEG, PNG, GIF입니다."
+                )
+
+        return profile_image

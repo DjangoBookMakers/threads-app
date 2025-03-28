@@ -60,6 +60,28 @@ document.addEventListener("DOMContentLoaded", function () {
         previewContainer.innerHTML = "";
 
         if (this.files && this.files[0]) {
+          const file = this.files[0];
+
+          // 파일 유효성 검사
+          const validTypes = [
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+            "image/gif",
+          ];
+          if (!validTypes.includes(file.type)) {
+            alert("지원되는 이미지 형식은 JPG, JPEG, PNG, GIF입니다.");
+            this.value = "";
+            return;
+          }
+
+          // 파일 크기 제한 (5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            alert("이미지 크기는 5MB 이하여야 합니다.");
+            this.value = "";
+            return;
+          }
+
           const reader = new FileReader();
           reader.onload = function (e) {
             const img = document.createElement("img");
@@ -79,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             previewContainer.appendChild(cancelBtn);
           };
-          reader.readAsDataURL(this.files[0]);
+          reader.readAsDataURL(file);
         }
       }
     });
