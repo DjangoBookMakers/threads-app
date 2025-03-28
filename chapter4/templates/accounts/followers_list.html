@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }}의 팔로워 - Threads{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <!-- 왼쪽 사이드바 -->
+    <div class="col-lg-3 d-none d-lg-block sidebar">
+      {% include 'threads/partials/sidebar.html' %}
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="col-lg-9 col-md-12">
+      <div class="mb-3">
+        <a href="{% url 'accounts:profile' username=profile_user.username %}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left"></i>
+          프로필로 돌아가기
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title mb-0">{{ profile_user.username }}님의 팔로워</h4>
+        </div>
+        <div class="card-body">
+          {% if followers %}
+            <div class="list-group">
+              {% for follower in followers %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <a href="{% url 'accounts:profile' username=follower.username %}">
+                      <img src="{% if follower.profile_image %}{{ follower.profile_image.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}" alt="{{ follower.username }}" class="rounded-circle me-3" width="50" height="50">
+                    </a>
+                    <div>
+                      <a href="{% url 'accounts:profile' username=follower.username %}" class="text-decoration-none">
+                        <h5 class="mb-0">{{ follower.username }}</h5>
+                      </a>
+                      <small class="text-muted">{{ follower.bio|truncatechars:50 }}</small>
+                    </div>
+                  </div>
+
+                  {% if user.is_authenticated and user != follower %}
+                    <button class="btn btn-sm {% if follower in user.following.all %}btn-outline-primary{% else %}btn-primary{% endif %} follow-button" data-username="{{ follower.username }}">
+                      {% if follower in user.following.all %}언팔로우{% else %}팔로우{% endif %}
+                    </button>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info mb-0">팔로워가 없습니다.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

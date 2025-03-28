@@ -148,3 +148,68 @@ def user_threads_api(request, username):
             "has_more": has_more,
         }
     )
+
+
+@login_required
+def follow_toggle(request, username):
+    """
+    사용자 팔로우 토글 API
+    """
+    user_to_follow = get_object_or_404(User, username=username)
+
+    # 자기 자신은 팔로우할 수 없음
+    if request.user == user_to_follow:
+        return JsonResponse(
+            {"status": "error", "message": "자기 자신을 팔로우할 수 없습니다."}
+        )
+
+    # 이미 팔로우하고 있는지 확인
+    if request.user.following.filter(username=username).exists():
+        # 팔로우 취소
+        request.user.following.remove(user_to_follow)
+        is_following = False
+    else:
+        # 팔로우 추가
+        request.user.following.add(user_to_follow)
+        is_following = True
+
+    return JsonResponse(
+        {
+            "status": "success",
+            "is_following": is_following,
+            "followers_count": user_to_follow.get_followers_count(),
+            "following_count": user_to_follow.get_following_count(),
+        }
+    )
+
+
+def followers_list(request, username):
+    """
+    팔로워 목록 보기
+    """
+    user = get_object_or_404(User, username=username)
+    followers = user.followers.all()
+
+    context = {
+        "profile_user": user,
+        "followers": followers,
+        "is_owner": request.user == user,
+    }
+
+    return render(request, "accounts/followers_list.html", context)
+
+
+def following_list(request, username):
+    """
+    팔로잉 목록 보기
+    """
+    user = get_object_or_404(User, username=username)
+    following = user.following.all()
+
+    context = {
+        "profile_user": user,
+        "following": following,
+        "is_owner": request.user == user,
+    }
+
+    return render(request, "accounts/following_list.html", context)

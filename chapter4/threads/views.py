@@ -10,7 +10,11 @@ def home(request):
     """
     홈 페이지 뷰 - 로그인한 사용자의 타임라인을 표시합니다.
     """
-    threads = Thread.objects.all()
+    threads = (
+        Thread.objects.select_related("author")
+        .prefetch_related("likes", "comments")
+        .all()
+    )
 
     if request.method == "POST" and request.user.is_authenticated:
         form = ThreadForm(request.POST, request.FILES)

@@ -14,4 +14,11 @@ urlpatterns = [
         views.user_threads_api,
         name="user_threads_api",
     ),
+    path("follow/<str:username>/", views.follow_toggle, name="follow_toggle"),
+    path(
+        "profile/<str:username>/followers/", views.followers_list, name="followers_list"
+    ),
+    path(
+        "profile/<str:username>/following/", views.following_list, name="following_list"
+    ),
 ]

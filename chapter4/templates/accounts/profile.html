@@ -32,7 +32,13 @@
                     <a href="{% url 'accounts:edit_profile' %}" class="btn btn-outline-primary">프로필 편집</a>
                   {% else %}
                     <!-- 다른 사용자의 프로필인 경우 -->
-                    <button class="btn btn-primary follow-button">팔로우</button>
+                    <button class="btn btn-primary follow-button" data-username="{{ profile_user.username }}">
+                      {% if user.is_authenticated and profile_user in user.following.all %}
+                        언팔로우
+                      {% else %}
+                        팔로우
+                      {% endif %}
+                    </button>
                     <a href="#" class="btn btn-outline-primary ms-2">메시지</a>
                   {% endif %}
                 </div>
@@ -52,16 +58,20 @@
               <!-- 프로필 통계 -->
               <div class="profile-stats">
                 <div class="profile-stat me-4">
-                  <div class="profile-stat-value">{{ threads_count|default:"0" }}</div>
+                  <div class="profile-stat-value">{{ threads_count }}</div>
                   <div class="profile-stat-label">스레드</div>
                 </div>
                 <div class="profile-stat me-4">
-                  <div class="profile-stat-value">{{ followers_count|default:"0" }}</div>
-                  <div class="profile-stat-label">팔로워</div>
+                  <a href="{% url 'accounts:followers_list' username=profile_user.username %}" class="text-decoration-none text-dark">
+                    <div class="profile-stat-value followers-count">{{ profile_user.get_followers_count }}</div>
+                    <div class="profile-stat-label">팔로워</div>
+                  </a>
                 </div>
                 <div class="profile-stat">
-                  <div class="profile-stat-value">{{ following_count|default:"0" }}</div>
-                  <div class="profile-stat-label">팔로잉</div>
+                  <a href="{% url 'accounts:following_list' username=profile_user.username %}" class="text-decoration-none text-dark">
+                    <div class="profile-stat-value following-count">{{ profile_user.get_following_count }}</div>
+                    <div class="profile-stat-label">팔로잉</div>
+                  </a>
                 </div>
               </div>
             </div>
