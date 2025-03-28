@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import Http404, JsonResponse
-from .models import Thread
-from .forms import ThreadForm
+from .models import Thread, Comment
+from .forms import ThreadForm, CommentForm
 
 
 def home(request):
@@ -131,3 +131,116 @@ def delete_thread(request, pk):
         "title": "스레드 삭제",
     }
     return render(request, "threads/delete_thread.html", context)
+
+
+def thread_detail(request, pk):
+    """
+    스레드 상세 페이지 뷰
+    """
+    thread = get_object_or_404(Thread, pk=pk)
+    comments = thread.comments.all()
+
+    if request.method == "POST" and request.user.is_authenticated:
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.thread = thread
+            comment.author = request.user
+            comment.save()
+            messages.success(request, "댓글이 작성되었습니다.")
+            return redirect("threads:detail", pk=pk)
+    else:
+        form = CommentForm()
+
+    context = {
+        "thread": thread,
+        "comments": comments,
+        "form": form,
+    }
+    return render(request, "threads/thread_detail.html", context)
+
+
+@login_required
+def create_comment(request, thread_id):
+    """
+    댓글 생성 뷰
+    """
+    thread = get_object_or_404(Thread, pk=thread_id)
+
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.thread = thread
+            comment.author = request.user
+            comment.save()
+            messages.success(request, "댓글이 작성되었습니다.")
+
+            # AJAX 요청인 경우 JSON 응답
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return JsonResponse(
+                    {
+                        "status": "success",
+                        "author": request.user.username,
+                        "content": comment.content,
+                        "created_at": comment.created_at.strftime(
+                            "%Y년 %m월 %d일 %H:%M"
+                        ),
+                    }
+                )
+
+    return redirect("threads:detail", pk=thread_id)
+
+
+@login_required
+def update_comment(request, pk):
+    """
+    댓글 수정 뷰
+    """
+    comment = get_object_or_404(Comment, pk=pk)
+
+    # 작성자만 수정 가능
+    if comment.author != request.user:
+        messages.error(request, "다른 사용자의 댓글은 수정할 수 없습니다.")
+        return redirect("threads:detail", pk=comment.thread.pk)
+
+    if request.method == "POST":
+        form = CommentForm(request.POST, instance=comment)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "댓글이 수정되었습니다.")
+            return redirect("threads:detail", pk=comment.thread.pk)
+    else:
+        form = CommentForm(instance=comment)
+
+    context = {
+        "form": form,
+        "comment": comment,
+        "thread": comment.thread,
+    }
+    return render(request, "threads/update_comment.html", context)
+
+
+@login_required
+def delete_comment(request, pk):
+    """
+    댓글 삭제 뷰
+    """
+    comment = get_object_or_404(Comment, pk=pk)
+
+    # 작성자만 삭제 가능
+    if comment.author != request.user:
+        messages.error(request, "다른 사용자의 댓글은 삭제할 수 없습니다.")
+        return redirect("threads:detail", pk=comment.thread.pk)
+
+    thread_id = comment.thread.id
+
+    if request.method == "POST":
+        comment.delete()
+        messages.success(request, "댓글이 삭제되었습니다.")
+
+        # AJAX 요청인 경우 JSON 응답
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse({"status": "success"})
+
+    return redirect("threads:detail", pk=thread_id)

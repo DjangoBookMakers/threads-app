@@ -126,3 +126,102 @@ function loadMoreThreads() {
     }, 1500);
   }
 }
+
+// 댓글 삭제 확인
+function confirmDeleteComment(commentId) {
+  if (confirm("정말로 이 댓글을 삭제하시겠습니까?")) {
+    // AJAX 요청으로 댓글 삭제
+    fetch(`/comment/${commentId}/delete/`, {
+      method: "POST",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": getCsrfToken(),
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          // 댓글 요소 제거
+          const commentElement = document.querySelector(
+            `#comment-${commentId}`,
+          );
+          if (commentElement) {
+            commentElement.remove();
+
+            // 댓글 카운트 업데이트
+            const threadId = commentElement
+              .closest(".thread-card")
+              ?.id.replace("thread-", "");
+            if (threadId) {
+              const countElement = document.querySelector(
+                `button.comment-button[data-thread-id="${threadId}"] span`,
+              );
+              if (countElement) {
+                countElement.textContent =
+                  parseInt(countElement.textContent) - 1;
+              }
+            }
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
+}
+
+// 빠른 댓글 폼 제출 (AJAX)
+document.addEventListener("DOMContentLoaded", function () {
+  const quickCommentForms = document.querySelectorAll(".quick-comment-form");
+
+  quickCommentForms.forEach((form) => {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const threadId = this.action.match(/thread\/(\d+)\/comment/)[1];
+      const textarea = this.querySelector("textarea");
+      const content = textarea.value.trim();
+
+      if (!content) return;
+
+      fetch(this.action, {
+        method: "POST",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": getCsrfToken(),
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `content=${encodeURIComponent(content)}`,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "success") {
+            // 댓글 폼 초기화
+            textarea.value = "";
+
+            // 댓글 카운트 업데이트
+            const countElement = document.querySelector(
+              `button.comment-button[data-thread-id="${threadId}"] span`,
+            );
+            if (countElement) {
+              countElement.textContent = parseInt(countElement.textContent) + 1;
+            }
+
+            // 성공 메시지 표시
+            alert("댓글이 작성되었습니다.");
+
+            // 댓글 폼 닫기
+            const commentForm = document.querySelector(
+              `#comment-form-${threadId}`,
+            );
+            if (commentForm) {
+              commentForm.style.display = "none";
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  });
+});

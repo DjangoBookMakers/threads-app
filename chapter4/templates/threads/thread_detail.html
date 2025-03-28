@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block title %}스레드 - Threads{% endblock %}
 
@@ -78,23 +79,72 @@
 
           <!-- 댓글 작성 폼 -->
           <div class="mb-4">
-            <form action="#" method="post">
-              {% csrf_token %}
-              <div class="mb-3">
-                <textarea class="form-control auto-resize" placeholder="댓글을 입력하세요..." rows="2"></textarea>
+            {% if user.is_authenticated %}
+              <form action="{% url 'threads:create_comment' thread_id=thread.id %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                  {{ form.content|add_class:"form-control auto-resize" }}
+                </div>
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary">댓글 작성</button>
+                </div>
+              </form>
+            {% else %}
+              <div class="alert alert-info">
+                <a href="{% url 'accounts:login' %}?next={{ request.path }}">로그인</a>하여 댓글을 작성해보세요!
               </div>
-              <div class="d-grid">
-                <button type="submit" class="btn btn-primary">댓글 작성</button>
-              </div>
-            </form>
+            {% endif %}
           </div>
 
           <!-- 댓글 목록 -->
-          <h5 class="mb-3">댓글 0개</h5>
+          <h5 class="mb-3">댓글
+            {{ comments|length }}개</h5>
 
-          <div class="alert alert-info">
-            아직 댓글이 없습니다. 첫 댓글을 작성해보세요!
-          </div>
+          {% if comments %}
+            <div class="comments-list">
+              {% for comment in comments %}
+                <div class="comment-item d-flex mb-3" id="comment-{{ comment.id }}">
+                  <img src="{% if comment.author.profile_image %}{{ comment.author.profile_image.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}" alt="{{ comment.author.username }}" class="rounded-circle me-2" width="32" height="32">
+                  <div class="comment-content">
+                    <div class="d-flex align-items-center">
+                      <h6 class="mb-0 me-2">{{ comment.author.username }}</h6>
+                      <small class="text-muted">{{ comment.created_at|date:"Y년 m월 d일 H:i" }}</small>
+                    </div>
+                    <p class="mb-0">{{ comment.content }}</p>
+                    <div class="comment-actions mt-1">
+                      <button class="btn btn-sm p-0 text-muted me-2 like-comment-button" data-comment-id="{{ comment.id }}">
+                        <i class="far fa-heart"></i>
+                        <span>0</span>
+                      </button>
+                      <button class="btn btn-sm p-0 text-muted reply-button" data-comment-id="{{ comment.id }}">
+                        응답
+                      </button>
+
+                      {% if comment.author == user %}
+                        <div class="dropdown d-inline-block">
+                          <button class="btn btn-sm p-0 text-muted ms-2" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-h"></i>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                              <a class="dropdown-item" href="{% url 'threads:update_comment' pk=comment.id %}">수정</a>
+                            </li>
+                            <li>
+                              <a class="dropdown-item text-danger" href="#" onclick="confirmDeleteComment({{ comment.id }}); return false;">삭제</a>
+                            </li>
+                          </ul>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              아직 댓글이 없습니다. 첫 댓글을 작성해보세요!
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>

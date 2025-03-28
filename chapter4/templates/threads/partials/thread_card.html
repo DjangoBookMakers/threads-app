@@ -32,7 +32,7 @@
         </button>
         <button type="button" class="btn btn-sm btn-outline-secondary comment-button" data-thread-id="{{ thread.id }}">
           <i class="far fa-comment"></i>
-          <span>0</span>
+          <span>{{ thread.comments.count }}</span>
         </button>
         <button type="button" class="btn btn-sm btn-outline-secondary share-button" data-thread-id="{{ thread.id }}">
           <i class="far fa-share-square"></i>
@@ -58,13 +58,40 @@
 
     <!-- 댓글 폼 (기본적으로 숨김) -->
     <div id="comment-form-{{ thread.id }}" class="mt-3" style="display: none;">
-      <form action="#" method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-          <textarea class="form-control auto-resize" placeholder="댓글을 입력하세요..." rows="2"></textarea>
+      {% if user.is_authenticated %}
+        <form action="{% url 'threads:create_comment' thread_id=thread.id %}" method="post" class="quick-comment-form">
+          {% csrf_token %}
+          <div class="mb-3">
+            <textarea name="content" class="form-control auto-resize" placeholder="댓글을 입력하세요..." rows="2" maxlength="200"></textarea>
+          </div>
+          <button type="submit" class="btn btn-sm btn-primary">댓글 작성</button>
+        </form>
+      {% else %}
+        <div class="alert alert-info">
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}">로그인</a>하여 댓글을 작성해보세요!
         </div>
-        <button type="submit" class="btn btn-sm btn-primary">댓글 작성</button>
-      </form>
+      {% endif %}
     </div>
+
+    {% if show_comments and thread.comments.exists %}
+      <div class="comments-preview mt-3 border-top pt-2">
+        {% for comment in thread.get_latest_comments %}
+          <div class="comment-preview d-flex mb-1">
+            <img src="{% if comment.author.profile_image %}{{ comment.author.profile_image.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}" alt="{{ comment.author.username }}" class="rounded-circle me-2" width="24" height="24">
+            <div>
+              <small>
+                <strong>{{ comment.author.username }}</strong>
+                {{ comment.content|truncatechars:50 }}
+              </small>
+            </div>
+          </div>
+        {% endfor %}
+        {% if thread.get_comment_count > 2 %}
+          <small class="text-muted">
+            <a href="{% url 'threads:detail' pk=thread.id %}">{{ thread.get_comment_count|add:"-2" }}개의 댓글 더 보기</a>
+          </small>
+        {% endif %}
+      </div>
+    {% endif %}
   </div>
 </div>

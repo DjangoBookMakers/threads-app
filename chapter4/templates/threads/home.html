@@ -51,7 +51,7 @@
 
       {% if threads %}
         {% for thread in threads %}
-          {% include 'threads/partials/thread_card.html' with thread=thread %}
+          {% include 'threads/partials/thread_card.html' with thread=thread show_comments=True %}
         {% endfor %}
 
         <!-- 더 보기 버튼 -->
