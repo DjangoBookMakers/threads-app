@@ -3,23 +3,41 @@ document.addEventListener("DOMContentLoaded", function () {
   const likeButtons = document.querySelectorAll(".like-button");
   likeButtons.forEach((button) => {
     button.addEventListener("click", function () {
+      if (!isAuthenticated) {
+        // 로그인 필요 알림
+        alert("좋아요를 누르려면 로그인이 필요합니다.");
+        return;
+      }
+
       const threadId = this.getAttribute("data-thread-id");
       const likeIcon = this.querySelector("i");
       const likeCount = this.querySelector(".like-count");
 
-      // UI 상태 미리 업데이트 (나중에 실제 연동 시 AJAX 사용)
-      if (likeIcon.classList.contains("far")) {
-        likeIcon.classList.remove("far");
-        likeIcon.classList.add("fas");
-        likeCount.textContent = parseInt(likeCount.textContent) + 1;
-      } else {
-        likeIcon.classList.remove("fas");
-        likeIcon.classList.add("far");
-        likeCount.textContent = parseInt(likeCount.textContent) - 1;
-      }
-
-      // 추후 AJAX 호출로 서버에 좋아요 상태 업데이트
-      // 현재는 UI 데모만 구현
+      // AJAX 요청으로 좋아요 상태 업데이트
+      fetch(`/thread/${threadId}/like/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": getCsrfToken(),
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "success") {
+            // UI 업데이트
+            if (data.liked) {
+              likeIcon.classList.remove("far");
+              likeIcon.classList.add("fas");
+            } else {
+              likeIcon.classList.remove("fas");
+              likeIcon.classList.add("far");
+            }
+            likeCount.textContent = data.like_count;
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
     });
   });
 

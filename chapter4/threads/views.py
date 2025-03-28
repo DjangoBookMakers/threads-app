@@ -244,3 +244,47 @@ def delete_comment(request, pk):
             return JsonResponse({"status": "success"})
 
     return redirect("threads:detail", pk=thread_id)
+
+
+@login_required
+def like_thread(request, pk):
+    """
+    스레드 좋아요 토글 API
+    """
+    thread = get_object_or_404(Thread, pk=pk)
+
+    # 이미 좋아요를 눌렀는지 확인
+    if thread.likes.filter(id=request.user.id).exists():
+        # 좋아요 취소
+        thread.likes.remove(request.user)
+        liked = False
+    else:
+        # 좋아요 추가
+        thread.likes.add(request.user)
+        liked = True
+
+    return JsonResponse(
+        {"status": "success", "liked": liked, "like_count": thread.get_like_count()}
+    )
+
+
+@login_required
+def like_comment(request, pk):
+    """
+    댓글 좋아요 토글 API
+    """
+    comment = get_object_or_404(Comment, pk=pk)
+
+    # 이미 좋아요를 눌렀는지 확인
+    if comment.likes.filter(id=request.user.id).exists():
+        # 좋아요 취소
+        comment.likes.remove(request.user)
+        liked = False
+    else:
+        # 좋아요 추가
+        comment.likes.add(request.user)
+        liked = True
+
+    return JsonResponse(
+        {"status": "success", "liked": liked, "like_count": comment.get_like_count()}
+    )

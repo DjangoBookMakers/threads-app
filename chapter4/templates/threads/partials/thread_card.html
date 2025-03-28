@@ -27,8 +27,8 @@
     <div class="d-flex justify-content-between align-items-center mt-3">
       <div class="btn-group">
         <button type="button" class="btn btn-sm btn-outline-secondary like-button" data-thread-id="{{ thread.id }}">
-          <i class="far fa-heart"></i>
-          <span class="like-count">0</span>
+          <i class="{% if user.is_authenticated and user in thread.likes.all %}fas{% else %}far{% endif %} fa-heart"></i>
+          <span class="like-count">{{ thread.get_like_count }}</span>
         </button>
         <button type="button" class="btn btn-sm btn-outline-secondary comment-button" data-thread-id="{{ thread.id }}">
           <i class="far fa-comment"></i>

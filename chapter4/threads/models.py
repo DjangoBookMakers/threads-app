@@ -20,6 +20,9 @@ class Thread(models.Model):
     image = models.ImageField(upload_to=get_file_path, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name="liked_threads", blank=True
+    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -29,6 +32,9 @@ class Thread(models.Model):
 
     def get_absolute_url(self):
         return reverse("threads:detail", kwargs={"pk": self.pk})
+
+    def get_like_count(self):
+        return self.likes.count()
 
 
 class Comment(models.Model):
@@ -41,6 +47,9 @@ class Comment(models.Model):
     content = models.TextField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, related_name="liked_comments", blank=True
+    )
 
     class Meta:
         ordering = ["created_at"]
@@ -53,3 +62,6 @@ class Comment(models.Model):
 
     def get_latest_comments(self, limit=2):
         return self.comments.all()[:limit]
+
+    def get_like_count(self):
+        return self.likes.count()
