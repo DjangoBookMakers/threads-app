@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>블로그 포스트 목록</title>
+</head>
+<body>
+    <h1>블로그 포스트 목록</h1>
+    {% if posts %}
+        <ul>
+        {% for post in posts %}
+            <li>
+                <a href="{% url 'post_detail' post.id %}">{{ post.title }}</a>
+                <p>{{ post.created_at|date:"Y-m-d" }}</p>
+                <p>{{ post.content|truncatewords:20 }}</p>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>아직 게시물이 없습니다.</p>
+    {% endif %}
+</body>
+</html>
