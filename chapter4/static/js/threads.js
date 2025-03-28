@@ -47,21 +47,21 @@ document.addEventListener("DOMContentLoaded", function () {
   shareButtons.forEach((button) => {
     button.addEventListener("click", function () {
       const threadId = this.getAttribute("data-thread-id");
-      const dummyURL = `https://yourwebsite.com/threads/${threadId}/`;
+      const threadUrl = `${window.location.origin}/thread/${threadId}/`;
 
       // 웹 공유 API 지원 확인
       if (navigator.share) {
         navigator
           .share({
             title: "Threads에서 공유된 게시물",
-            url: dummyURL,
+            url: threadUrl,
           })
           .catch(console.error);
       } else {
         // 클립보드에 URL 복사 (폴백)
         const tempInput = document.createElement("input");
         document.body.appendChild(tempInput);
-        tempInput.value = dummyURL;
+        tempInput.value = threadUrl;
         tempInput.select();
         document.execCommand("copy");
         document.body.removeChild(tempInput);
@@ -75,10 +75,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // 스레드 작성 폼 문자 수 카운터
   const threadTextareas = document.querySelectorAll(".thread-textarea");
   threadTextareas.forEach((textarea) => {
-    const counter = document.querySelector(`#${textarea.id}-counter`);
+    const counter = document.querySelector(`#thread-content-counter`);
 
     if (counter) {
-      const maxLength = 280; // 최대 글자 수 (Twitter/Threads 스타일)
+      const maxLength = 500; // 최대 글자 수 (500자)
 
       textarea.addEventListener("input", function () {
         const remainingChars = maxLength - this.value.length;
@@ -106,14 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // 스레드 삭제 확인
 function confirmDeleteThread(threadId) {
   if (confirm("정말로 이 스레드를 삭제하시겠습니까?")) {
-    // 추후 실제 삭제 기능 구현
-    console.log(`스레드 ${threadId} 삭제 요청`);
-
-    // 현재는 UI 데모용으로 DOM에서만 제거
-    const threadElement = document.querySelector(`#thread-${threadId}`);
-    if (threadElement) {
-      threadElement.remove();
-    }
+    window.location.href = `/thread/${threadId}/delete/`;
   }
 }
 

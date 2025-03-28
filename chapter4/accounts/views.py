@@ -13,7 +13,7 @@ def signup(request):
             user = form.save()
             login(request, user)  # 회원가입 후 자동 로그인
             messages.success(request, "회원가입이 완료되었습니다!")
-            return redirect("home")
+            return redirect("threads:home")
     else:
         form = SignUpForm()
     return render(request, "accounts/signup.html", {"form": form})
@@ -37,7 +37,7 @@ def login_view(request):
                     request.session.set_expiry(0)
 
                 messages.success(request, f"{username}님, 환영합니다!")
-                next_url = request.POST.get("next", "home")
+                next_url = request.POST.get("next", "threads:home")
                 return redirect(next_url)
             else:
                 messages.error(
@@ -55,7 +55,7 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     messages.success(request, "로그아웃 되었습니다.")
-    return redirect("home")
+    return redirect("threads:home")
 
 
 def profile_view(request, username):
