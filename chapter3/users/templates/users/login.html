@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}로그인 - Threads{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h2 class="my-2 h4"><i class="bi bi-box-arrow-in-right me-2"></i>로그인</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="d-grid gap-2 mt-4">
+                        <button class="btn btn-dark" type="submit">
+                            <i class="bi bi-key me-1"></i> 로그인
+                        </button>
+                    </div>
+                </form>
+                <div class="border-top pt-3 mt-4 text-center">
+                    <small class="text-muted">
+                        계정이 없으신가요? <a class="ms-2" href="{% url 'users:register' %}">회원가입</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

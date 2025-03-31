@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}쓰레드 삭제 - Threads{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h2 class="my-2 h4"><i class="bi bi-exclamation-triangle me-2"></i>쓰레드 삭제</h2>
+            </div>
+            <div class="card-body">
+                <p class="lead">정말로 이 쓰레드를 삭제하시겠습니까?</p>
+
+                <div class="card mb-4 bg-light">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <img src="{{ thread.user.profile.profile_image.url }}" alt="{{ thread.user.username }}"
+                                     class="profile-img-sm me-2">
+                                <span class="fw-bold">{{ thread.user.username }}</span>
+                            </div>
+                            <small class="text-muted">{{ thread.created_at|date:"Y년 m월 d일 H:i" }}</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="thread-content">{{ thread.content }}</p>
+                        {% if thread.image %}
+                            <img src="{{ thread.image.url }}" alt="쓰레드 이미지" class="img-fluid rounded mb-3" style="max-height: 300px;">
+                        {% endif %}
+                    </div>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-end">
+                        <a href="{% url 'threads:thread-detail' thread.id %}" class="btn btn-outline-secondary me-2">취소</a>
+                        <button type="submit" class="btn btn-danger">삭제</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

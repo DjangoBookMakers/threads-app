@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}팔로잉 - Threads{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="mb-4 d-flex justify-content-between align-items-center">
+            <h2><i class="bi bi-people me-2"></i>팔로잉 피드</h2>
+            {% if user.is_authenticated %}
+                <a href="{% url 'threads:thread-create' %}" class="btn btn-dark rounded-pill">
+                    <i class="bi bi-plus-lg me-1"></i> 새 쓰레드
+                </a>
+            {% endif %}
+        </div>
+
+        {% if threads %}
+            <div id="thread-container">
+                {% for thread in threads %}
+                    <div class="card mb-4 thread-item">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a href="{% url 'users:profile' thread.user.username %}" class="text-decoration-none text-dark">
+                                        <img src="{{ thread.user.profile.profile_image.url }}" alt="{{ thread.user.username }}" 
+                                             class="profile-img-sm me-2">
+                                        <span class="fw-bold">{{ thread.user.username }}</span>
+                                    </a>
+                                </div>
+                                <small class="text-muted">{{ thread.created_at|date:"Y년 m월 d일 H:i" }}</small>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="thread-content">{{ thread.content }}</p>
+                            {% if thread.image %}
+                                <img src="{{ thread.image.url }}" alt="쓰레드 이미지" class="thread-image img-fluid rounded mb-3">
+                            {% endif %}
+
+                            <!-- 좋아요 버튼 -->
+                            <div class="d-flex align-items-center mt-3">
+                                <form class="like-form" data-thread-id="{{ thread.id }}" action="{% url 'threads:like-toggle' thread.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm interaction-btn {% if thread.is_liked %}like-btn-active{% endif %} me-2">
+                                        <i class="bi {% if thread.is_liked %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i> 
+                                        <span class="like-count">{{ thread.likes.count }}</span>
+                                    </button>
+                                </form>
+                                <a href="{% url 'threads:thread-detail' thread.id %}" class="btn btn-sm interaction-btn ms-2">
+                                    <i class="bi bi-chat me-1"></i> 댓글
+                                </a>
+                                <a href="{% url 'threads:thread-detail' thread.id %}" class="btn btn-sm interaction-btn ms-auto">
+                                    <i class="bi bi-arrow-right"></i> 상세보기
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-people display-4 text-muted mb-3"></i>
+                    <h3 class="h4 mb-3">아직 팔로우한 사용자의 쓰레드가 없습니다</h3>
+                    <p class="text-muted mb-3">다른 사용자를 팔로우하여 그들의 쓰레드를 확인해보세요!</p>
+                    <a href="{% url 'threads:home' %}" class="btn btn-dark rounded-pill">
+                        <i class="bi bi-search me-1"></i> 사용자 찾기
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card sticky-top" style="top: 20px;">
+            <div class="card-header bg-dark text-white">
+                <h3 class="my-2 h5"><i class="bi bi-info-circle me-2"></i>팔로잉 피드 소개</h3>
+            </div>
+            <div class="card-body">
+                <p>팔로우한 사용자와 나의 쓰레드만 표시됩니다.</p>
+                <hr>
+                <h5 class="mb-3">빠른 링크</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'threads:home' %}" class="btn btn-outline-dark text-start">
+                        <i class="bi bi-house me-2"></i> 홈 피드
+                    </a>
+                    <a href="{% url 'users:profile' user.username %}" class="btn btn-outline-dark text-start">
+                        <i class="bi bi-person me-2"></i> 내 프로필
+                    </a>
+                    <a href="{% url 'threads:thread-create' %}" class="btn btn-dark text-start">
+                        <i class="bi bi-plus-lg me-2"></i> 새 쓰레드 작성
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

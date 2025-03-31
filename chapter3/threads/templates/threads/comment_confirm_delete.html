@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}댓글 삭제 - Threads{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h2 class="my-2 h4"><i class="bi bi-exclamation-triangle me-2"></i>댓글 삭제</h2>
+            </div>
+            <div class="card-body">
+                <p class="lead">정말로 이 댓글을 삭제하시겠습니까?</p>
+
+                <div class="card mb-4 bg-light">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>
+                                <span class="fw-bold">{{ comment.user.username }}</span>
+                            </div>
+                            <small class="text-muted">{{ comment.created_at|date:"Y년 m월 d일 H:i" }}</small>
+                        </div>
+                        <p>{{ comment.content }}</p>
+                    </div>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-end">
+                        <a href="{% url 'threads:thread-detail' comment.thread.id %}" class="btn btn-outline-secondary me-2">취소</a>
+                        <button type="submit" class="btn btn-danger">삭제</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

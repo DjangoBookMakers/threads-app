@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Threads - 홈{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="mb-4 d-flex justify-content-between align-items-center">
+            <h2><i class="bi bi-fire me-2"></i>최신 쓰레드</h2>
+            {% if user.is_authenticated %}
+                <a href="{% url 'threads:thread-create' %}" class="btn btn-dark rounded-pill">
+                    <i class="bi bi-plus-lg me-1"></i> 새 쓰레드
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- 쓰레드 목록 컨테이너 -->
+        <div id="thread-container">
+            {% include 'threads/includes/thread_list.html' %}
+        </div>
+
+        <!-- 로딩 스피너 -->
+        <div id="loading-spinner" class="text-center d-none my-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <!-- 더 이상 쓰레드가 없을 때 표시할 메시지 -->
+        <div id="no-more-threads" class="alert alert-info text-center d-none my-4">
+            더 이상 표시할 쓰레드가 없습니다.
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card sticky-top" style="top: 20px;">
+            <div class="card-header bg-dark text-white">
+                <h3 class="my-2 h5"><i class="bi bi-info-circle me-2"></i>Threads에 오신 것을 환영합니다!</h3>
+            </div>
+            <div class="card-body">
+                <p>이곳에서 여러분의 생각을 공유하고 다른 사람들과 소통하세요.</p>
+                {% if not user.is_authenticated %}
+                    <hr>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'users:register' %}" class="btn btn-dark rounded-pill">
+                            <i class="bi bi-person-plus me-1"></i> 회원가입
+                        </a>
+                        <a href="{% url 'users:login' %}" class="btn btn-outline-dark rounded-pill">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> 로그인
+                        </a>
+                    </div>
+                {% else %}
+                    <hr>
+                    <h5 class="mb-3">빠른 링크</h5>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'threads:following-feed' %}" class="btn btn-outline-dark text-start">
+                            <i class="bi bi-people me-2"></i> 팔로잉 피드
+                        </a>
+                        <a href="{% url 'users:profile' user.username %}" class="btn btn-outline-dark text-start">
+                            <i class="bi bi-person me-2"></i> 내 프로필
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let nextPage = 2;  // 첫 페이지는 이미 로드되어 있으므로 2부터 시작
+        let isLoading = false;  // 로딩 중 상태 관리
+        let hasMoreThreads = true;  // 더 로드할 쓰레드가 있는지 여부
+
+        const threadContainer = document.getElementById('thread-container');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const noMoreThreads = document.getElementById('no-more-threads');
+
+        // 페이지 스크롤 이벤트 감지
+        window.addEventListener('scroll', function() {
+            // 페이지 하단에 도달했는지 확인
+            if (
+                !isLoading &&
+                hasMoreThreads &&
+                window.innerHeight + window.scrollY >= document.body.offsetHeight - 100
+            ) {
+                loadMoreThreads();
+            }
+        });
+
+        // 추가 쓰레드 로드 함수
+        function loadMoreThreads() {
+            isLoading = true;
+            loadingSpinner.classList.remove('d-none');
+
+            fetch(`{% url 'threads:load-more' %}?page=${nextPage}`)
+                .then(response => response.json())
+                .then(data => {
+                    // 로딩 상태 업데이트
+                    isLoading = false;
+                    loadingSpinner.classList.add('d-none');
+
+                    // 쓰레드 추가
+                    if (data.threads_html) {
+                        threadContainer.insertAdjacentHTML('beforeend', data.threads_html);
+                    }
+
+                    // 페이지네이션 정보 업데이트
+                    hasMoreThreads = data.has_next;
+                    if (data.has_next) {
+                        nextPage = data.next_page_number;
+                    } else {
+                        noMoreThreads.classList.remove('d-none');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading more threads:', error);
+                    isLoading = false;
+                    loadingSpinner.classList.add('d-none');
+                });
+        }
+    });
+</script>
+{% endblock %}

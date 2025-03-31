@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}쓰레드 상세 - Threads{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- 쓰레드 카드 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <a href="{% url 'users:profile' thread.user.username %}" class="text-decoration-none text-dark">
+                            <img src="{{ thread.user.profile.profile_image.url }}" alt="{{ thread.user.username }}"
+                                 class="profile-img-sm me-2">
+                            <span class="fw-bold">{{ thread.user.username }}</span>
+                        </a>
+                    </div>
+                    <div>
+                        <small class="text-muted me-3">조회수: {{ thread.views }}</small>
+                        <small class="text-muted">{{ thread.created_at|date:"Y년 m월 d일 H:i" }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="thread-content">{{ thread.content }}</p>
+                {% if thread.image %}
+                    <img src="{{ thread.image.url }}" alt="쓰레드 이미지" class="thread-image img-fluid rounded mb-3">
+                {% endif %}
+
+                <!-- 좋아요 버튼 추가 -->
+                <div class="d-flex align-items-center mt-3">
+                    <form class="like-form" data-thread-id="{{ thread.id }}" action="{% url 'threads:like-toggle' thread.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn interaction-btn {% if thread.is_liked %}like-btn-active{% endif %} me-2">
+                            <i class="bi {% if thread.is_liked %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                            <span class="like-count">{{ thread.likes.count }}</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% if user == thread.user %}
+                <div class="card-footer d-flex justify-content-end">
+                    <a href="{% url 'threads:thread-update' thread.id %}" class="btn btn-sm btn-outline-dark me-2">
+                        <i class="bi bi-pencil me-1"></i> 수정
+                    </a>
+                    <a href="{% url 'threads:thread-delete' thread.id %}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash me-1"></i> 삭제
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- 댓글 섹션 추가 -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="bi bi-chat-left-text me-2"></i>댓글 ({{ comments.count }})</h5>
+            </div>
+            <div class="card-body">
+                {% if user.is_authenticated %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ comment_form|crispy }}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-dark rounded-pill mt-2">
+                                <i class="bi bi-send me-1"></i> 댓글 작성
+                            </button>
+                        </div>
+                    </form>
+                    <hr>
+                {% else %}
+                    <div class="alert alert-info">
+                        댓글을 작성하려면 <a href="{% url 'users:login' %}" class="alert-link">로그인</a>하세요.
+                    </div>
+                {% endif %}
+
+                {% if comments %}
+                    <div class="comments-list">
+                        {% for comment in comments %}
+                            <div class="comment mb-3 pb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <a href="{% url 'users:profile' comment.user.username %}" class="text-decoration-none text-dark">
+                                            <img src="{{ comment.user.profile.profile_image.url }}" alt="{{ comment.user.username }}"
+                                                 class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                                            <span class="fw-bold">{{ comment.user.username }}</span>
+                                        </a>
+                                    </div>
+                                    <small class="text-muted">{{ comment.created_at|date:"Y년 m월 d일 H:i" }}</small>
+                                </div>
+                                <p class="mb-1">{{ comment.content }}</p>
+                                {% if user == comment.user %}
+                                    <div class="d-flex justify-content-end">
+                                        <a href="{% url 'threads:comment-delete' comment.id %}" class="btn btn-sm interaction-btn text-danger">
+                                            <i class="bi bi-trash"></i> 삭제
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center my-3">아직 댓글이 없습니다. 첫 댓글을 작성해보세요!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 이전/다음 쓰레드 네비게이션 추가 -->
+        <div class="d-flex justify-content-between mb-4">
+            {% if prev_thread %}
+                <a href="{% url 'threads:thread-detail' prev_thread.id %}" class="btn btn-outline-dark">
+                    <i class="bi bi-arrow-left me-1"></i> 이전 쓰레드
+                </a>
+            {% else %}
+                <button class="btn btn-outline-secondary" disabled>
+                    <i class="bi bi-arrow-left me-1"></i> 이전 쓰레드
+                </button>
+            {% endif %}
+
+            <a href="{% url 'threads:home' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-house me-1"></i> 홈으로
+            </a>
+
+            {% if next_thread %}
+                <a href="{% url 'threads:thread-detail' next_thread.id %}" class="btn btn-outline-dark">
+                    다음 쓰레드 <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            {% else %}
+                <button class="btn btn-outline-secondary" disabled>
+                    다음 쓰레드 <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% for thread in threads %}
+    <div class="card mb-4 thread-item">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="{% url 'users:profile' thread.user.username %}" class="text-decoration-none text-dark">
+                        <img src="{{ thread.user.profile.profile_image.url }}" alt="{{ thread.user.username }}"
+                             class="profile-img-sm me-2">
+                        <span class="fw-bold">{{ thread.user.username }}</span>
+                    </a>
+                </div>
+                <small class="text-muted">{{ thread.created_at|date:"Y년 m월 d일 H:i" }}</small>
+            </div>
+        </div>
+        <div class="card-body">
+            <p class="thread-content">{{ thread.content }}</p>
+            {% if thread.image %}
+                <img src="{{ thread.image.url }}" alt="쓰레드 이미지" class="thread-image img-fluid rounded mb-3">
+            {% endif %}
+
+            <!-- 좋아요 버튼 추가 -->
+            <div class="d-flex align-items-center mt-3">
+                <form class="like-form" data-thread-id="{{ thread.id }}" action="{% url 'threads:like-toggle' thread.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm interaction-btn {% if thread.is_liked %}like-btn-active{% endif %} me-2">
+                        <i class="bi {% if thread.is_liked %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                        <span class="like-count">{{ thread.likes.count }}</span>
+                    </button>
+                </form>
+                <a href="{% url 'threads:thread-detail' thread.id %}" class="btn btn-sm interaction-btn ms-2">
+                    <i class="bi bi-chat me-1"></i> 댓글
+                </a>
+                <a href="{% url 'threads:thread-detail' thread.id %}" class="btn btn-sm interaction-btn ms-auto">
+                    <i class="bi bi-arrow-right"></i> 상세보기
+                </a>
+            </div>
+        </div>
+    </div>
+{% endfor %}

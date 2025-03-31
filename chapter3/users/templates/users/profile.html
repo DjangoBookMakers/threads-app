@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile_user.username }}의 프로필 - Threads{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <img class="profile-img-lg mb-3"
+                     src="{{ profile_user.profile.profile_image.url }}" alt="{{ profile_user.username }}의 프로필 이미지">
+                <h2 class="card-title h3">{{ profile_user.username }}</h2>
+                <p class="text-muted">{{ profile_user.email }}</p>
+
+                <!-- 팔로우 통계 추가 -->
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="px-3 text-center">
+                        <strong>{{ followers_count }}</strong>
+                        <div class="small text-muted">팔로워</div>
+                    </div>
+                    <div class="px-3 text-center">
+                        <strong>{{ following_count }}</strong>
+                        <div class="small text-muted">팔로잉</div>
+                    </div>
+                </div>
+
+                {% if profile_user.profile.bio %}
+                    <p class="card-text">{{ profile_user.profile.bio }}</p>
+                {% else %}
+                    <p class="card-text text-muted">자기소개가 없습니다.</p>
+                {% endif %}
+
+                <!-- 팔로우 버튼 추가 -->
+                {% if user.is_authenticated and user != profile_user %}
+                    <form method="POST" action="{% url 'threads:follow-toggle' profile_user.username %}" class="mb-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn follow-btn {% if is_following %}btn-outline-dark{% else %}btn-dark{% endif %}">
+                            {% if is_following %}언팔로우{% else %}팔로우{% endif %}
+                        </button>
+                    </form>
+                {% endif %}
+
+                {% if user == profile_user %}
+                    <a href="{% url 'users:edit_profile' %}" class="btn btn-outline-dark follow-btn mt-2">
+                        <i class="bi bi-pencil-square me-1"></i> 프로필 수정
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="h5 mb-0"><i class="bi bi-collection me-2"></i>{{ profile_user.username }}님의 쓰레드</h3>
+            </div>
+            <div class="card-body p-0">
+                {% if threads %}
+                    <div class="list-group list-group-flush">
+                    {% for thread in threads %}
+                        <div class="list-group-item p-3">
+                            <h5 class="mb-1">
+                                <a href="{% url 'threads:thread-detail' thread.id %}" class="text-decoration-none text-dark">
+                                    {% if thread.content|length > 100 %}
+                                        {{ thread.content|slice:":100" }}...
+                                    {% else %}
+                                        {{ thread.content }}
+                                    {% endif %}
+                                </a>
+                            </h5>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">{{ thread.created_at|date:"Y년 m월 d일 H:i" }}</small>
+
+                                <div class="d-flex align-items-center">
+                                    <form class="like-form me-2" data-thread-id="{{ thread.id }}" action="{% url 'threads:like-toggle' thread.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm interaction-btn {% if thread.is_liked %}like-btn-active{% endif %}">
+                                            <i class="bi {% if thread.is_liked %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                                            <span class="like-count">{{ thread.likes.count }}</span>
+                                        </button>
+                                    </form>
+                                    <a href="{% url 'threads:thread-detail' thread.id %}" class="btn btn-sm interaction-btn">
+                                        <i class="bi bi-chat me-1"></i> 댓글
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-search display-4 text-muted"></i>
+                        <p class="mt-3 text-muted">아직 작성한 쓰레드가 없습니다.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

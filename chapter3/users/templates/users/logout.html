@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}로그아웃 - Threads{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h2 class="my-2">로그아웃</h2>
+            </div>
+            <div class="card-body">
+                <h4>성공적으로 로그아웃되었습니다!</h4>
+                <div class="border-top pt-3 mt-4">
+                    <small>
+                        <a href="{% url 'users:login' %}">다시 로그인하기</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

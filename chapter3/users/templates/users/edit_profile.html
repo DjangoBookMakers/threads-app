@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}프로필 수정 - Threads{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h2 class="my-2">프로필 수정</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <fieldset class="form-group mb-4">
+                        <legend class="border-bottom mb-4">계정 정보</legend>
+                        {{ u_form|crispy }}
+                    </fieldset>
+                    <fieldset class="form-group mb-4">
+                        <legend class="border-bottom mb-4">프로필 정보</legend>
+                        {{ p_form|crispy }}
+                    </fieldset>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" type="submit">저장하기</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
